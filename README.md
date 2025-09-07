@@ -1,140 +1,198 @@
-# SGBD_colunas
-repositorio criado para instalação do ClickHouse
-ClickHouse - SGBD Orientado a Colunas
-Este repositório contém scripts e instruções para instalação do ClickHouse no Windows 11.
+🦆 DuckDB - SGBD Orientado a Colunas para Windows 11
+
+Sistema de Banco de Dados Orientado a Colunas com instalação automatizada para Windows 11.
+DuckDB é um SGBD orientado a colunas, ideal para análises de dados, com instalação simples e alta performance em consultas analíticas.
 📋 Pré-requisitos
 
-Windows 11
-PowerShell (já incluído no Windows)
-Conexão com internet
-Privilégios de administrador
+✅ Windows 11
+✅ PowerShell (já incluído no Windows)
+✅ Conexão com internet
+✅ Privilégios de administrador
 
 🚀 Instalação Rápida
-Opção 1: Script Automático (Recomendado)
+Método 1: Clone do Repositório
+powershell# 1. Clonar repositório
+git clone https://github.com/seu-usuario/duckdb-windows.git
+cd duckdb-windows
 
-Baixe o script install-clickhouse.ps1
-Abra o PowerShell como Administrador
-Execute o script:
+# 2. Executar como Administrador
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\install-duckdb.ps1
+Método 2: Download Direto
 
-powershell# Permitir execução de scripts (apenas uma vez)
+Baixe o arquivo install-duckdb.ps1
+Abra PowerShell como Administrador
+Execute: .\install-duckdb.ps1
+
+📊 O que você ganha
+
+🦆 DuckDB instalado e configurado
+📁 Banco de exemplo com 10 registros de vendas
+🖥️ Atalhos no desktop para fácil acesso
+📈 Consultas analíticas pré-configuradas
+📝 Scripts de exemplo inclusos
+
+💻 Como Usar
+Iniciar DuckDB:
+
+Desktop: Clique em "DuckDB - SGBD Colunas"
+PowerShell: Execute C:\DuckDB\start-duckdb.bat
+Direto: C:\DuckDB\duckdb.exe exemplo.db
+
+Comandos Básicos:
+sql.tables                  -- Listar tabelas
+SELECT * FROM vendas;    -- Ver dados de exemplo
+.help                    -- Ajuda
+.exit                    -- Sair
+📈 Dados de Exemplo
+A instalação cria automaticamente uma tabela vendas com:
+CampoTipoExemploidINTEGER1dataDATE2024-01-01produtoVARCHARNotebook DellcategoriaVARCHAREletrônicosquantidadeINTEGER2valor_unitarioDECIMAL2500.00descontoDECIMAL5.00vendedorVARCHARJoão SilvaregiaoVARCHARSul
+10 registros simulando vendas de uma loja de informática.
+🔍 Consultas Analíticas de Exemplo
+1. Faturamento por Categoria:
+sqlSELECT 
+    categoria,
+    COUNT(*) as total_vendas,
+    SUM(quantidade) as total_quantidade,
+    SUM(quantidade * valor_unitario * (1 - desconto/100)) as faturamento,
+    ROUND(AVG(valor_unitario), 2) as ticket_medio
+FROM vendas 
+GROUP BY categoria 
+ORDER BY faturamento DESC;
+2. Performance por Vendedor:
+sqlSELECT 
+    vendedor,
+    COUNT(*) as vendas_realizadas,
+    SUM(quantidade * valor_unitario * (1 - desconto/100)) as total_faturado,
+    ROUND(AVG(quantidade * valor_unitario * (1 - desconto/100)), 2) as venda_media
+FROM vendas 
+GROUP BY vendedor 
+ORDER BY total_faturado DESC;
+3. Análise Regional:
+sqlSELECT 
+    regiao,
+    COUNT(DISTINCT produto) as produtos_vendidos,
+    SUM(quantidade) as total_unidades,
+    SUM(quantidade * valor_unitario * (1 - desconto/100)) as receita_total
+FROM vendas 
+GROUP BY regiao 
+ORDER BY receita_total DESC;
+4. Ranking de Produtos:
+sqlSELECT 
+    produto,
+    categoria,
+    SUM(quantidade) as unidades_vendidas,
+    SUM(quantidade * valor_unitario) as receita_bruta,
+    RANK() OVER (ORDER BY SUM(quantidade * valor_unitario) DESC) as ranking
+FROM vendas 
+GROUP BY produto, categoria 
+ORDER BY receita_bruta DESC;
+🛠️ Comandos Úteis DuckDB
+sql-- SISTEMA
+.help                           -- Ajuda completa
+.tables                         -- Listar tabelas
+.schema vendas                  -- Estrutura da tabela
+.databases                      -- Bancos conectados
+
+-- FORMATAÇÃO
+.mode table                     -- Formato tabela
+.mode csv                       -- Formato CSV  
+.headers on                     -- Mostrar cabeçalhos
+
+-- ARQUIVOS
+.read arquivo.sql               -- Executar SQL de arquivo
+.output resultado.csv           -- Exportar próxima consulta
+.backup backup.db               -- Backup do banco
+📁 Estrutura Instalada
+C:\DuckDB\
+├── duckdb.exe                  # Executável principal
+├── exemplo.db                  # Banco com dados de exemplo
+├── start-duckdb.bat           # Script de inicialização
+├── novo-banco.bat             # Criar novo banco
+├── scripts\
+│   ├── dados_exemplo.sql      # SQL dos dados de exemplo
+│   └── comandos_uteis.sql     # Comandos e consultas úteis
+├── logs\                      # Logs do sistema
+└── backup\                    # Diretório para backups
+🔧 Resolução de Problemas
+Erro: "não é reconhecido como cmdlet"
+powershell# Verificar localização
+pwd
+cd "caminho/correto"
+
+# OU executar com caminho completo
+& "C:\caminho\install-duckdb.ps1"
+Erro: "arquivo não pode ser carregado"
+powershell# Liberar execução de scripts
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-# Executar o script de instalação
-.\install-clickhouse.ps1
-Opção 2: Instalação Manual
+# OU forçar
+PowerShell.exe -ExecutionPolicy Bypass -File ".\install-duckdb.ps1"
+Erro: "Tabela vendas não existe"
+sql-- Recriar dados de exemplo
+.read C:\DuckDB\scripts\dados_exemplo.sql
+DuckDB travado/ocupado
+powershell# Parar processos
+Get-Process -Name "duckdb" | Stop-Process -Force
+⚡ Por que DuckDB?
+✅ Vantagens:
 
-Baixar o ClickHouse:
-powershell# Criar diretório
-mkdir C:\ClickHouse
-cd C:\ClickHouse
+Instalação simples: Um único arquivo executável
+Zero configuração: Funciona imediatamente
+SQL padrão: Compatível com SQL que você já conhece
+Alta performance: Otimizado para análises
+Leve: Baixo uso de memória e CPU
+Embarcado: Não precisa de servidor separado
 
-# Baixar executáveis
-Invoke-WebRequest -Uri "https://builds.clickhouse.com/master/windows/clickhouse.exe" -OutFile "clickhouse.exe"
+🎯 Ideal para:
 
-Configurar o Banco:
-powershell# Criar diretórios necessários
-mkdir data
-mkdir logs
-mkdir config
+Análise de dados locais
+Prototipagem de analytics
+Relatórios e dashboards
+ETL e processamento de dados
+Aprendizado de SQL analítico
 
-# Copiar configuração padrão
-copy config.xml config\
+📊 Performance:
 
-Iniciar o Servidor:
-powershell.\clickhouse.exe server --config-file=config\config.xml
+Datasets: Até alguns GB facilmente
+Consultas: Segundos para milhões de registros
+Memória: Otimizada automaticamente
+Compressão: Dados comprimidos automaticamente
 
+📚 Recursos Adicionais
 
-⚙️ Configuração
-Arquivo de Configuração (config.xml)
-O arquivo config.xml já está configurado com:
+📖 Documentação Oficial DuckDB
+🎓 Tutorial SQL Analytics
+🔗 Conectores e APIs
+📈 Funções Analíticas
 
-Porta padrão: 8123 (HTTP) e 9000 (TCP)
-Diretório de dados: ./data
-Logs: ./logs
-Usuário padrão sem senha (para desenvolvimento)
+🔄 Próximos Passos
+Após a instalação:
 
-Conectar ao Banco
+Explorar dados: SELECT * FROM vendas LIMIT 5;
+Testar agregações: Use as consultas de exemplo acima
+Criar suas tabelas: .read seus_dados.sql
+Fazer backup: .backup meu_backup.db
 
-Via Cliente (Terminal):
-powershell.\clickhouse.exe client
+🤝 Contribuindo
 
-Via Interface Web:
+Fork este repositório
+Crie sua branch: git checkout -b feature/melhoria
+Commit: git commit -am 'Adiciona nova funcionalidade'
+Push: git push origin feature/melhoria
+Abra um Pull Request
 
-Acesse: http://localhost:8123/play
-Usuário: default
-Senha: (deixe em branco)
+📄 Licença
+Este projeto está sob a licença MIT. Veja LICENSE para detalhes.
 
+🚀 Comece Agora!
+powershell# Download e execução em uma linha:
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/seu-usuario/duckdb-windows/main/install-duckdb.ps1" -OutFile "install-duckdb.ps1"; .\install-duckdb.ps1
+✨ Status: Testado e Funcionando
 
-Via HTTP API:
-bashcurl "http://localhost:8123/?query=SELECT version()"
+✅ Windows 11 compatível
+✅ Instalação automatizada
+✅ Dados de exemplo funcionais
+✅ Consultas analíticas testadas
 
-
-🗃️ Comandos Básicos
-Criar Database
-sqlCREATE DATABASE exemplo_db;
-USE exemplo_db;
-Criar Tabela (Exemplo)
-sqlCREATE TABLE vendas (
-    data Date,
-    produto String,
-    categoria String,
-    quantidade UInt32,
-    valor Float32
-) ENGINE = MergeTree()
-ORDER BY data;
-Inserir Dados
-sqlINSERT INTO vendas VALUES 
-    ('2024-01-01', 'Notebook', 'Eletrônicos', 10, 2500.00),
-    ('2024-01-02', 'Mouse', 'Periféricos', 50, 25.00),
-    ('2024-01-03', 'Teclado', 'Periféricos', 30, 80.00);
-Consultas Analíticas
-sql-- Total de vendas por categoria
-SELECT 
-    categoria,
-    sum(quantidade * valor) as total_vendas
-FROM vendas
-GROUP BY categoria
-ORDER BY total_vendas DESC;
-
--- Média de vendas por dia
-SELECT 
-    data,
-    avg(valor) as valor_medio
-FROM vendas
-GROUP BY data;
-🔧 Scripts Úteis
-Iniciar Servidor como Serviço
-Execute setup-service.ps1 para configurar o ClickHouse como serviço do Windows:
-powershell.\setup-service.ps1
-Backup de Dados
-powershell# Criar backup
-.\clickhouse.exe client --query "BACKUP DATABASE exemplo_db TO 'backup_$(Get-Date -Format 'yyyyMMdd').tar'"
-📊 Monitoramento
-
-System Queries: SELECT * FROM system.processes
-Métricas: SELECT * FROM system.metrics
-Logs: Verifique a pasta logs/
-
-🔍 Troubleshooting
-Problemas Comuns
-
-Porta já em uso:
-powershellnetstat -ano | findstr :8123
-
-Permissões de arquivo:
-powershell# Dar permissões completas ao diretório
-icacls C:\ClickHouse /grant Everyone:F /t
-
-Firewall do Windows:
-
-Adicione exceção para as portas 8123 e 9000
-Ou execute: New-NetFirewallRule -DisplayName "ClickHouse" -Direction Inbound -Port 8123,9000 -Protocol TCP -Action Allow
-
-
-
-Verificar Status
-sqlSELECT 
-    name,
-    value
-FROM system.settings 
-WHERE name LIKE '%version%';
+Última atualização: Setembro 2025 | Versão DuckDB: v1.3.2
